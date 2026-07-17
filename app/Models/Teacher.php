@@ -30,4 +30,13 @@ class Teacher extends Model
     {
         return $this->belongsTo(User::class, 'id_user');
     }
+    public function account()
+{
+    return $this->belongsTo(User::class, 'id_account');
+}
+
+public function classesAsWaliKelas()
+{
+    return $this->hasMany(SchoolClass::class, 'id_wali_kelas');
+}
 }

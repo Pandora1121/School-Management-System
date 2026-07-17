@@ -34,6 +34,7 @@
                         <th>Nama</th>
                         <th>Jurusan</th>
                         <th>Gender</th>
+                        <th>Tgl Lahir</th>
                         <th>Telepon</th>
                         <th>Status</th>
                         <th style="width: 150px;">Aksi</th>
@@ -60,29 +61,30 @@ $(document).ready(function () {
             $('#loading').addClass('d-none');
             $('#teachersTable').removeClass('d-none');
 
-            let rows = res.data.map((item, index) => [
-                index + 1,
-                item.nip,
-                item.name,
-                item.major_name,
-                item.gender,
-                item.phone,
-                item.status == 'Aktif'
-                    ? '<span class="badge bg-success">Aktif</span>'
-                    : '<span class="badge bg-secondary">Non-Aktif</span>',
-                `<a href="/teachers/${item.id}/edit" class="btn btn-sm btn-warning">Edit</a>
-                 @if(auth()->user()->role == 1)
-                 <button class="btn btn-sm btn-danger btn-delete" data-id="${item.id}">Hapus</button>
-                 @endif`
-            ]);
+                    let rows = res.data.map((item, index) => [
+            index + 1,
+            item.nip,
+            item.name,
+            item.major_name,
+            item.gender,
+            item.birth_date,
+            item.phone,
+            item.status == 'Aktif'
+                ? '<span class="badge bg-success">Aktif</span>'
+                : '<span class="badge bg-secondary">Non-Aktif</span>',
+            `<a href="/teachers/${item.id}/edit" class="btn btn-sm btn-warning">Edit</a>
+            @if(auth()->user()->role == 1)
+            <button class="btn btn-sm btn-danger btn-delete" data-id="${item.id}">Hapus</button>
+            @endif`
+        ]);
 
-            $('#teachersTable').DataTable({
-                data: rows,
-                columns: [
-                    { title: "No" }, { title: "NIP" }, { title: "Nama" }, { title: "Jurusan" },
-                    { title: "Gender" }, { title: "Telepon" }, { title: "Status" }, { title: "Aksi" }
-                ]
-            });
+                    $('#teachersTable').DataTable({
+            data: rows,
+            columns: [
+                { title: "No" }, { title: "NIP" }, { title: "Nama" }, { title: "Jurusan" },
+                { title: "Gender" }, { title: "Tgl Lahir" }, { title: "Telepon" }, { title: "Status" }, { title: "Aksi" }
+            ]
+        });
         },
         error: function () {
             $('#loading').html('<p class="text-danger">Gagal memuat data.</p>');

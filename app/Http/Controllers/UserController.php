@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Student;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -28,6 +30,7 @@ class UserController extends Controller
                     2 => 'Admin',
                     3 => 'Guru',
                     4 => 'Siswa',
+                    5 => 'Wali Kelas',
                     default => '-',
                 },
                 'status' => $item->status == 1 ? 'Aktif' : 'Non-Aktif',
@@ -39,7 +42,9 @@ class UserController extends Controller
 
     public function create()
     {
-        return view('users.add');
+        $students = Student::whereNull('id_account')->orderBy('name')->get();
+        $teachers = Teacher::whereNull('id_account')->orderBy('name')->get();
+        return view('users.add', compact('students', 'teachers'));
     }
 
     public function store(Request $request)
@@ -49,10 +54,12 @@ class UserController extends Controller
             'username' => ['required', 'string', 'max:255', 'unique:tbl_users,username'],
             'email' => ['required', 'email', 'max:255', 'unique:tbl_users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'in:1,2,3,4'],
+            'role' => ['required', 'in:1,2,3,4,5'],
+            'id_student' => ['nullable', 'exists:tbl_students,id'],
+            'id_teacher' => ['nullable', 'exists:tbl_teachers,id'],
         ]);
 
-        User::create([
+        $user = User::create([
             'creation_time' => now(),
             'create_id' => auth()->id(),
             'archived' => 0,
@@ -63,6 +70,14 @@ class UserController extends Controller
             'role' => $validated['role'],
             'status' => 1,
         ]);
+
+        if ($validated['role'] == 4 && !empty($validated['id_student'])) {
+            Student::where('id', $validated['id_student'])->update(['id_account' => $user->id]);
+        }
+
+        if (in_array($validated['role'], [3, 5]) && !empty($validated['id_teacher'])) {
+            Teacher::where('id', $validated['id_teacher'])->update(['id_account' => $user->id]);
+        }
 
         return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan.');
     }
@@ -81,7 +96,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:tbl_users,username,'.$id],
             'email' => ['required', 'email', 'max:255', 'unique:tbl_users,email,'.$id],
-            'role' => ['required', 'in:1,2,3,4'],
+            'role' => ['required', 'in:1,2,3,4,5'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 

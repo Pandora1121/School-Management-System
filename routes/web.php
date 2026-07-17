@@ -11,7 +11,7 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\ClassRoutineController;
 use App\Http\Controllers\AttendanceController;
-
+use App\Http\Controllers\TeacherPortalController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -116,4 +116,15 @@ Route::middleware(['auth', 'role:1,2'])->group(function () {
     Route::get('/attendances/create', [AttendanceController::class, 'create'])->name('attendances.create');
     Route::post('/attendances', [AttendanceController::class, 'store'])->name('attendances.store');
     Route::delete('/attendances/{id}', [AttendanceController::class, 'destroy'])->name('attendances.destroy');
+});
+
+Route::middleware(['auth', 'role:3,5'])->group(function () {
+    Route::get('/my-schedule', [TeacherPortalController::class, 'schedule'])->name('teacher.schedule');
+});
+
+Route::middleware(['auth', 'role:5'])->group(function () {
+    Route::get('/my-classes', [TeacherPortalController::class, 'classes'])->name('teacher.classes');
+    Route::get('/my-classes/{id}/students', [TeacherPortalController::class, 'classStudents'])->name('teacher.classes.students');
+    Route::get('/my-classes/{id}/attendance', [TeacherPortalController::class, 'attendanceForm'])->name('teacher.attendance.create');
+    Route::post('/my-classes/{id}/attendance', [TeacherPortalController::class, 'attendanceStore'])->name('teacher.attendance.store');
 });

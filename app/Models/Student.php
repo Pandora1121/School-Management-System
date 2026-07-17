@@ -35,4 +35,8 @@ class Student extends Model
 {
     static::addGlobalScope(new ArchivedScope);
 }
+public function account()
+{
+    return $this->belongsTo(User::class, 'id_account');
+}
 }

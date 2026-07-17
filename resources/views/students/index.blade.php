@@ -28,15 +28,16 @@
             </div>
             <table id="studentsTable" class="table table-bordered table-hover w-100 d-none">
                 <thead>
-                    <tr>
-                        <th style="width: 60px;">No</th>
-                        <th>NIS</th>
-                        <th>Nama</th>
-                        <th>Kelas</th>
-                        <th>Jurusan</th>
-                        <th>Gender</th>
-                        <th>Status</th>
-                        <th style="width: 150px;">Aksi</th>
+                   <tr>
+                            <th style="width: 60px;">No</th>
+                            <th>NIS</th>
+                            <th>Nama</th>
+                            <th>Kelas</th>
+                            <th>Jurusan</th>
+                            <th>Gender</th>
+                            <th>Tgl Lahir</th>
+                            <th>Status</th>
+                            <th style="width: 150px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -60,29 +61,30 @@ $(document).ready(function () {
             $('#loading').addClass('d-none');
             $('#studentsTable').removeClass('d-none');
 
-            let rows = res.data.map((item, index) => [
+                let rows = res.data.map((item, index) => [
                 index + 1,
                 item.nis,
                 item.name,
                 item.class_name,
                 item.major_name,
                 item.gender,
+                item.birth_date,
                 item.status == 'Aktif'
                     ? '<span class="badge bg-success">Aktif</span>'
                     : '<span class="badge bg-secondary">Non-Aktif</span>',
                 `<a href="/students/${item.id}/edit" class="btn btn-sm btn-warning">Edit</a>
-                 @if(auth()->user()->role == 1)
-                 <button class="btn btn-sm btn-danger btn-delete" data-id="${item.id}">Hapus</button>
-                 @endif`
+                @if(auth()->user()->role == 1)
+                <button class="btn btn-sm btn-danger btn-delete" data-id="${item.id}">Hapus</button>
+                @endif`
             ]);
 
-            $('#studentsTable').DataTable({
-                data: rows,
-                columns: [
-                    { title: "No" }, { title: "NIS" }, { title: "Nama" }, { title: "Kelas" },
-                    { title: "Jurusan" }, { title: "Gender" }, { title: "Status" }, { title: "Aksi" }
-                ]
-            });
+                            $('#studentsTable').DataTable({
+                    data: rows,
+                    columns: [
+                        { title: "No" }, { title: "NIS" }, { title: "Nama" }, { title: "Kelas" },
+                        { title: "Jurusan" }, { title: "Gender" }, { title: "Tgl Lahir" }, { title: "Status" }, { title: "Aksi" }
+                    ]
+                });
         },
         error: function () {
             $('#loading').html('<p class="text-danger">Gagal memuat data.</p>');

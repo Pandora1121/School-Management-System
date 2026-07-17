@@ -46,6 +46,7 @@
                         <option value="2" {{ old('role', $user->role) == 2 ? 'selected' : '' }}>Admin</option>
                         <option value="3" {{ old('role', $user->role) == 3 ? 'selected' : '' }}>Guru</option>
                         <option value="4" {{ old('role', $user->role) == 4 ? 'selected' : '' }}>Siswa</option>
+                        <option value="5" {{ old('role', $user->role ?? '') == 5 ? 'selected' : '' }}>Wali Kelas</option>
                     </select>
                 </div>
                 <div class="mb-3">

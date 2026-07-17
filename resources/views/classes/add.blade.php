@@ -46,6 +46,17 @@
                     </select>
                 </div>
                 <div class="mb-3">
+                    <label class="form-label">Wali Kelas</label>
+                    <select name="id_wali_kelas" class="form-select">
+                        <option value="">-- Pilih Wali Kelas (opsional) --</option>
+                        @foreach ($teachers as $teacher)
+                            <option value="{{ $teacher->id }}" {{ old('id_wali_kelas') == $teacher->id ? 'selected' : '' }}>
+                                {{ $teacher->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
                     <label class="form-label">Deskripsi</label>
                     <textarea name="description" class="form-control" placeholder="Deskripsi singkat kelas" rows="3">{{ old('description') }}</textarea>
                 </div>

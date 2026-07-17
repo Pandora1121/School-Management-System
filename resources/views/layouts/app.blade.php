@@ -32,32 +32,47 @@
                 <li class="nav-item">
                     <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ route('majors.index') }}" class="nav-link {{ request()->routeIs('majors.*') ? 'active' : '' }}">Jurusan</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('classes.index') }}" class="nav-link {{ request()->routeIs('classes.*') ? 'active' : '' }}">Kelas</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('students.index') }}" class="nav-link {{ request()->routeIs('students.*') ? 'active' : '' }}">Data Siswa</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('teachers.index') }}" class="nav-link {{ request()->routeIs('teachers.*') ? 'active' : '' }}">Data Guru</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('subjects.index') }}" class="nav-link {{ request()->routeIs('subjects.*') ? 'active' : '' }}">Mata Pelajaran</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('class-routines.index') }}" class="nav-link {{ request()->routeIs('class-routines.*') ? 'active' : '' }}">Jadwal Pelajaran</a>
-                </li>
-                
-                <li class="nav-item">
-                    <a href="{{ route('attendances.index') }}" class="nav-link {{ request()->routeIs('attendances.*') ? 'active' : '' }}">Absensi Siswa</a>
-                </li>
+
+                @if (in_array(auth()->user()->role, [1, 2]))
+                    <li class="nav-item">
+                        <a href="{{ route('majors.index') }}" class="nav-link {{ request()->routeIs('majors.*') ? 'active' : '' }}">Jurusan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('classes.index') }}" class="nav-link {{ request()->routeIs('classes.*') ? 'active' : '' }}">Kelas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('students.index') }}" class="nav-link {{ request()->routeIs('students.*') ? 'active' : '' }}">Data Siswa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('teachers.index') }}" class="nav-link {{ request()->routeIs('teachers.*') ? 'active' : '' }}">Data Guru</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('subjects.index') }}" class="nav-link {{ request()->routeIs('subjects.*') ? 'active' : '' }}">Mata Pelajaran</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('class-routines.index') }}" class="nav-link {{ request()->routeIs('class-routines.*') ? 'active' : '' }}">Jadwal Pelajaran</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('attendances.index') }}" class="nav-link {{ request()->routeIs('attendances.*') ? 'active' : '' }}">Absensi Siswa</a>
+                    </li>
+                @endif
+
+                @if (in_array(auth()->user()->role, [3, 5]))
+                    <li class="nav-item">
+                        <a href="{{ route('teacher.schedule') }}" class="nav-link {{ request()->routeIs('teacher.schedule') ? 'active' : '' }}">Jadwal Mengajar</a>
+                    </li>
+                @endif
+
+                @if (auth()->user()->role == 5)
+                    <li class="nav-item">
+                        <a href="{{ route('teacher.classes') }}" class="nav-link {{ request()->routeIs('teacher.classes*') ? 'active' : '' }}">Kelas Saya</a>
+                    </li>
+                @endif
+
                 @if (auth()->user()->role == 1)
-                <li class="nav-item">
-                    <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">User List</a>
-                </li>
+                    <li class="nav-item">
+                        <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">User List</a>
+                    </li>
                 @endif
             </ul>
         </nav>
@@ -70,5 +85,4 @@
     @endauth
     @stack('scripts')
 </body>
-</html>
 </html>

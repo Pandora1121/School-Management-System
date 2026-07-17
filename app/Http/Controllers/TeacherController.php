@@ -13,24 +13,25 @@ class TeacherController extends Controller
         return view('teachers.index');
     }
 
-    public function data()
-    {
-        $teachers = Teacher::with('major')->orderBy('id', 'desc')->get();
+  public function data()
+{
+    $teachers = Teacher::with('major')->orderBy('id', 'desc')->get();
 
-        $data = $teachers->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'nip' => $item->nip,
-                'name' => $item->name,
-                'major_name' => $item->major->name ?? '-',
-                'gender' => $item->gender == 'L' ? 'Laki-laki' : 'Perempuan',
-                'phone' => $item->phone ?? '-',
-                'status' => $item->status == 1 ? 'Aktif' : 'Non-Aktif',
-            ];
-        });
+    $data = $teachers->map(function ($item) {
+        return [
+            'id' => $item->id,
+            'nip' => $item->nip,
+            'name' => $item->name,
+            'major_name' => $item->major->name ?? '-',
+            'gender' => $item->gender == 'L' ? 'Laki-laki' : 'Perempuan',
+            'birth_date' => $item->birth_date ? \Carbon\Carbon::parse($item->birth_date)->translatedFormat('d M Y') : '-',
+            'phone' => $item->phone ?? '-',
+            'status' => $item->status == 1 ? 'Aktif' : 'Non-Aktif',
+        ];
+    });
 
-        return response()->json(['data' => $data]);
-    }
+    return response()->json(['data' => $data]);
+}
 
     public function create()
     {
