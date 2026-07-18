@@ -59,7 +59,7 @@ class ClassController extends Controller
             'description' => $validated['description'] ?? null,
         ]);
 
-        return redirect()->route('classes.index')->with('success', 'Kelas berhasil ditambahkan.');
+        return response()->json(['success' => true, 'message' => 'Kelas berhasil ditambahkan.']);
     }
 
     public function edit($id)
@@ -92,7 +92,7 @@ class ClassController extends Controller
             'description' => $validated['description'] ?? null,
         ]);
 
-        return redirect()->route('classes.index')->with('success', 'Kelas berhasil diperbarui.');
+        return response()->json(['success' => true, 'message' => 'Kelas berhasil diperbarui.']);
     }
 
     public function destroy($id)

@@ -12,6 +12,9 @@ use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\ClassRoutineController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\TeacherPortalController;
+use App\Http\Controllers\StudentPortalController;
+use App\Http\Controllers\ExamController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -122,9 +125,33 @@ Route::middleware(['auth', 'role:3,5'])->group(function () {
     Route::get('/my-schedule', [TeacherPortalController::class, 'schedule'])->name('teacher.schedule');
 });
 
-Route::middleware(['auth', 'role:5'])->group(function () {
+Route::middleware(['auth', 'role:3,5'])->group(function () {
     Route::get('/my-classes', [TeacherPortalController::class, 'classes'])->name('teacher.classes');
     Route::get('/my-classes/{id}/students', [TeacherPortalController::class, 'classStudents'])->name('teacher.classes.students');
     Route::get('/my-classes/{id}/attendance', [TeacherPortalController::class, 'attendanceForm'])->name('teacher.attendance.create');
     Route::post('/my-classes/{id}/attendance', [TeacherPortalController::class, 'attendanceStore'])->name('teacher.attendance.store');
+});
+
+
+
+Route::middleware(['auth', 'role:4'])->group(function () {
+    Route::get('/my-class-schedule', [StudentPortalController::class, 'schedule'])->name('student.schedule');
+    Route::get('/my-attendance', [StudentPortalController::class, 'attendance'])->name('student.attendance');
+    Route::get('/my-scores', [StudentPortalController::class, 'scores'])->name('student.scores');
+});
+
+
+Route::middleware(['auth', 'role:3,5'])->group(function () {
+    Route::get('/exams', [ExamController::class, 'index'])->name('exams.index');
+    Route::get('/exams/create', [ExamController::class, 'create'])->name('exams.create');
+    Route::post('/exams/students-form', [ExamController::class, 'studentsForm'])->name('exams.students-form');
+    Route::post('/exams', [ExamController::class, 'store'])->name('exams.store');
+    Route::delete('/exams/{id}', [ExamController::class, 'destroy'])->name('exams.destroy');
+});
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 });

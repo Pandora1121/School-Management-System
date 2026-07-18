@@ -13,7 +13,7 @@
     </nav>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0">Siswa Kelas {{ $class->name }}</h4>
+        <h4 class="mb-0">Siswa Kelas {{ $class->name }} {{ $isWaliKelas ? '(Wali Kelas)' : '(Guru Pengajar)' }}</h4>
         <a href="{{ route('teacher.attendance.create', $class->id) }}" class="btn btn-primary btn-sm">Input Absensi Hari Ini</a>
     </div>
 

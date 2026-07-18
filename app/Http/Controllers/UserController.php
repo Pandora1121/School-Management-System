@@ -79,7 +79,7 @@ class UserController extends Controller
             Teacher::where('id', $validated['id_teacher'])->update(['id_account' => $user->id]);
         }
 
-        return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan.');
+        return response()->json(['success' => true, 'message' => 'User berhasil ditambahkan.']);
     }
 
     public function edit($id)
@@ -115,7 +115,7 @@ class UserController extends Controller
 
         $user->update($updateData);
 
-        return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
+        return response()->json(['success' => true, 'message' => 'User berhasil diperbarui.']);
     }
 
     public function destroy($id)

@@ -16,32 +16,24 @@
         <div class="card-body">
             <h5 class="mb-4">Tambah Kelas</h5>
 
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    @foreach ($errors->all() as $error)
-                        <div>{{ $error }}</div>
-                    @endforeach
-                </div>
-            @endif
+            <div id="formAlert"></div>
 
-            <form method="POST" action="{{ route('classes.store') }}">
+            <form id="classForm" method="POST" action="{{ route('classes.store') }}">
                 @csrf
                 <div class="mb-3">
                     <label class="form-label">Kode Kelas <span class="text-danger">*</span></label>
-                    <input type="text" name="code" class="form-control" placeholder="Contoh: XII-RPL-1" value="{{ old('code') }}" autofocus required>
+                    <input type="text" name="code" class="form-control" placeholder="Contoh: XII-RPL-1" autofocus required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Nama Kelas <span class="text-danger">*</span></label>
-                    <input type="text" name="name" class="form-control" placeholder="Contoh: XII RPL 1" value="{{ old('name') }}" required>
+                    <input type="text" name="name" class="form-control" placeholder="Contoh: XII RPL 1" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Jurusan <span class="text-danger">*</span></label>
                     <select name="id_major" class="form-select" required>
                         <option value="">-- Pilih Jurusan --</option>
                         @foreach ($majors as $major)
-                            <option value="{{ $major->id }}" {{ old('id_major') == $major->id ? 'selected' : '' }}>
-                                {{ $major->name }}
-                            </option>
+                            <option value="{{ $major->id }}">{{ $major->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -50,20 +42,69 @@
                     <select name="id_wali_kelas" class="form-select">
                         <option value="">-- Pilih Wali Kelas (opsional) --</option>
                         @foreach ($teachers as $teacher)
-                            <option value="{{ $teacher->id }}" {{ old('id_wali_kelas') == $teacher->id ? 'selected' : '' }}>
-                                {{ $teacher->name }}
-                            </option>
+                            <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Deskripsi</label>
-                    <textarea name="description" class="form-control" placeholder="Deskripsi singkat kelas" rows="3">{{ old('description') }}</textarea>
+                    <textarea name="description" class="form-control" placeholder="Deskripsi singkat kelas" rows="3"></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="submit" id="submitBtn" class="btn btn-primary">
+                    <span id="submitText">Simpan</span>
+                    <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                </button>
                 <a href="{{ route('classes.index') }}" class="btn btn-secondary">Batal</a>
             </form>
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(document).ready(function () {
+    $('#classForm').on('submit', function (e) {
+        e.preventDefault();
+
+        let formData = $(this).serialize();
+        $('#submitBtn').prop('disabled', true);
+        $('#submitText').addClass('d-none');
+        $('#submitSpinner').removeClass('d-none');
+        $('#formAlert').html('');
+        $('.is-invalid').removeClass('is-invalid');
+
+        $.ajax({
+            url: $(this).attr('action'),
+            method: 'POST',
+            data: formData,
+            success: function (res) {
+                $('#formAlert').html(`<div class="alert alert-success">${res.message}</div>`);
+                setTimeout(function () {
+                    window.location.href = "{{ route('classes.index') }}";
+                }, 800);
+            },
+            error: function (xhr) {
+                $('#submitBtn').prop('disabled', false);
+                $('#submitText').removeClass('d-none');
+                $('#submitSpinner').addClass('d-none');
+
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    let errorHtml = '<div class="alert alert-danger"><ul class="mb-0">';
+                    $.each(errors, function (field, messages) {
+                        errorHtml += `<li>${messages[0]}</li>`;
+                        $(`[name="${field}"]`).addClass('is-invalid');
+                    });
+                    errorHtml += '</ul></div>';
+                    $('#formAlert').html(errorHtml);
+                } else {
+                    $('#formAlert').html('<div class="alert alert-danger">Terjadi kesalahan. Coba lagi.</div>');
+                }
+            }
+        });
+    });
+});
+</script>
+@endpush

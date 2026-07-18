@@ -68,7 +68,7 @@ class ClassRoutineController extends Controller
             'end_time' => $validated['end_time'],
         ]);
 
-        return redirect()->route('class-routines.index')->with('success', 'Jadwal berhasil ditambahkan.');
+        return response()->json(['success' => true, 'message' => 'Jadwal berhasil ditambahkan.']);
     }
 
     public function edit($id)
@@ -104,7 +104,7 @@ class ClassRoutineController extends Controller
             'end_time' => $validated['end_time'],
         ]);
 
-        return redirect()->route('class-routines.index')->with('success', 'Jadwal berhasil diperbarui.');
+        return response()->json(['success' => true, 'message' => 'Jadwal berhasil diperbarui.']);
     }
 
     public function destroy($id)

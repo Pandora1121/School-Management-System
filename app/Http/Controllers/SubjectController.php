@@ -60,7 +60,7 @@ class SubjectController extends Controller
             'description' => $validated['description'] ?? null,
         ]);
 
-        return redirect()->route('subjects.index')->with('success', 'Mata pelajaran berhasil ditambahkan.');
+        return response()->json(['success' => true, 'message' => 'Mata pelajaran berhasil ditambahkan.']);
     }
 
     public function edit($id)
@@ -93,7 +93,7 @@ class SubjectController extends Controller
             'description' => $validated['description'] ?? null,
         ]);
 
-        return redirect()->route('subjects.index')->with('success', 'Mata pelajaran berhasil diperbarui.');
+        return response()->json(['success' => true, 'message' => 'Mata pelajaran berhasil diperbarui.']);
     }
 
     public function destroy($id)

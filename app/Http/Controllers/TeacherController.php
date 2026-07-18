@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Teacher;
 use App\Models\Major;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class TeacherController extends Controller
 {
@@ -13,30 +14,38 @@ class TeacherController extends Controller
         return view('teachers.index');
     }
 
-  public function data()
-{
-    $teachers = Teacher::with('major')->orderBy('id', 'desc')->get();
+    public function data()
+    {
+        $teachers = Teacher::with('major')->orderBy('id', 'desc')->get();
 
-    $data = $teachers->map(function ($item) {
-        return [
-            'id' => $item->id,
-            'nip' => $item->nip,
-            'name' => $item->name,
-            'major_name' => $item->major->name ?? '-',
-            'gender' => $item->gender == 'L' ? 'Laki-laki' : 'Perempuan',
-            'birth_date' => $item->birth_date ? \Carbon\Carbon::parse($item->birth_date)->translatedFormat('d M Y') : '-',
-            'phone' => $item->phone ?? '-',
-            'status' => $item->status == 1 ? 'Aktif' : 'Non-Aktif',
-        ];
-    });
+        $data = $teachers->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'nip' => $item->nip,
+                'name' => $item->name,
+                'major_name' => $item->major->name ?? '-',
+                'gender' => $item->gender == 'L' ? 'Laki-laki' : 'Perempuan',
+                'birth_date' => $item->birth_date ? \Carbon\Carbon::parse($item->birth_date)->translatedFormat('d M Y') : '-',
+                'phone' => $item->phone ?? '-',
+                'status' => $item->status == 1 ? 'Aktif' : 'Non-Aktif',
+            ];
+        });
 
-    return response()->json(['data' => $data]);
-}
+        return response()->json(['data' => $data]);
+    }
 
     public function create()
     {
         $majors = Major::orderBy('name')->get();
         return view('teachers.add', compact('majors'));
+    }
+
+    private function sanitizeFileName($file): string
+    {
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $cleanName = Str::slug($originalName);
+        return now()->format('YmdHis').'-'.$cleanName.'.'.$extension;
     }
 
     public function store(Request $request)
@@ -55,7 +64,7 @@ class TeacherController extends Controller
 
         $imgName = null;
         if ($request->hasFile('img_url')) {
-            $imgName = now()->format('YmdHis').'-'.$request->file('img_url')->getClientOriginalName();
+            $imgName = $this->sanitizeFileName($request->file('img_url'));
             $request->file('img_url')->move(public_path('uploads/teachers'), $imgName);
         }
 
@@ -76,7 +85,7 @@ class TeacherController extends Controller
             'status' => 1,
         ]);
 
-        return redirect()->route('teachers.index')->with('success', 'Data guru berhasil ditambahkan.');
+        return response()->json(['success' => true, 'message' => 'Data guru berhasil ditambahkan.']);
     }
 
     public function edit($id)
@@ -104,7 +113,7 @@ class TeacherController extends Controller
 
         $imgName = $teacher->img_url;
         if ($request->hasFile('img_url')) {
-            $imgName = now()->format('YmdHis').'-'.$request->file('img_url')->getClientOriginalName();
+            $imgName = $this->sanitizeFileName($request->file('img_url'));
             $request->file('img_url')->move(public_path('uploads/teachers'), $imgName);
         }
 
@@ -122,7 +131,7 @@ class TeacherController extends Controller
             'email' => $validated['email'] ?? null,
         ]);
 
-        return redirect()->route('teachers.index')->with('success', 'Data guru berhasil diperbarui.');
+        return response()->json(['success' => true, 'message' => 'Data guru berhasil diperbarui.']);
     }
 
     public function destroy($id)

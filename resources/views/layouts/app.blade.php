@@ -55,15 +55,21 @@
                     <li class="nav-item">
                         <a href="{{ route('attendances.index') }}" class="nav-link {{ request()->routeIs('attendances.*') ? 'active' : '' }}">Absensi Siswa</a>
                     </li>
+                  <li class="nav-item">
+                <a href="{{ route('profile.show') }}" class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">Profil Saya</a>
+                 </li>
                 @endif
 
-                @if (in_array(auth()->user()->role, [3, 5]))
+                            @if (in_array(auth()->user()->role, [3, 5]))
                     <li class="nav-item">
                         <a href="{{ route('teacher.schedule') }}" class="nav-link {{ request()->routeIs('teacher.schedule') ? 'active' : '' }}">Jadwal Mengajar</a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('exams.index') }}" class="nav-link {{ request()->routeIs('exams.*') ? 'active' : '' }}">Nilai Siswa</a>
+                    </li>
                 @endif
 
-                @if (auth()->user()->role == 5)
+                 @if (in_array(auth()->user()->role, [3, 5]))
                     <li class="nav-item">
                         <a href="{{ route('teacher.classes') }}" class="nav-link {{ request()->routeIs('teacher.classes*') ? 'active' : '' }}">Kelas Saya</a>
                     </li>
@@ -74,6 +80,17 @@
                         <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">User List</a>
                     </li>
                 @endif
+                        @if (auth()->user()->role == 4)
+                <li class="nav-item">
+                    <a href="{{ route('student.schedule') }}" class="nav-link {{ request()->routeIs('student.schedule') ? 'active' : '' }}">Jadwal Pelajaran</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('student.attendance') }}" class="nav-link {{ request()->routeIs('student.attendance') ? 'active' : '' }}">Riwayat Presensi</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('student.scores') }}" class="nav-link {{ request()->routeIs('student.scores') ? 'active' : '' }}">Nilai Saya</a>
+                </li>
+            @endif
             </ul>
         </nav>
         <div class="main-content">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Major;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class MajorController extends Controller
 {
@@ -23,6 +24,14 @@ class MajorController extends Controller
         return view('majors.add');
     }
 
+    private function sanitizeFileName($file): string
+    {
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $cleanName = Str::slug($originalName);
+        return now()->format('YmdHis').'-'.$cleanName.'.'.$extension;
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -33,7 +42,7 @@ class MajorController extends Controller
 
         $imgName = null;
         if ($request->hasFile('img_url')) {
-            $imgName = now()->format('YmdHis').'-'.$request->file('img_url')->getClientOriginalName();
+            $imgName = $this->sanitizeFileName($request->file('img_url'));
             $request->file('img_url')->move(public_path('uploads/majors'), $imgName);
         }
 
@@ -47,7 +56,7 @@ class MajorController extends Controller
             'img_url' => $imgName,
         ]);
 
-        return redirect()->route('majors.index')->with('success', 'Jurusan berhasil ditambahkan.');
+        return response()->json(['success' => true, 'message' => 'Jurusan berhasil ditambahkan.']);
     }
 
     public function edit($id)
@@ -68,7 +77,7 @@ class MajorController extends Controller
 
         $imgName = $major->img_url;
         if ($request->hasFile('img_url')) {
-            $imgName = now()->format('YmdHis').'-'.$request->file('img_url')->getClientOriginalName();
+            $imgName = $this->sanitizeFileName($request->file('img_url'));
             $request->file('img_url')->move(public_path('uploads/majors'), $imgName);
         }
 
@@ -80,14 +89,15 @@ class MajorController extends Controller
             'img_url' => $imgName,
         ]);
 
-        return redirect()->route('majors.index')->with('success', 'Jurusan berhasil diperbarui.');
+        return response()->json(['success' => true, 'message' => 'Jurusan berhasil diperbarui.']);
     }
 
     public function destroy($id)
     {
-            if (auth()->user()->role != 1) {
-        abort(403, 'Anda tidak memiliki akses untuk menghapus data.');
-    }
+        if (auth()->user()->role != 1) {
+            abort(403, 'Anda tidak memiliki akses untuk menghapus data.');
+        }
+
         $major = Major::findOrFail($id);
         $major->update([
             'archived' => 1,

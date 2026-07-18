@@ -15,6 +15,23 @@ class TeacherPortalController extends Controller
         return auth()->user()->teacher;
     }
 
+    // Cek apakah guru ini boleh akses kelas tertentu:
+    // - Wali Kelas: hanya kelas yang dia ampu
+    // - Guru biasa: kelas manapun yang pernah dia ajar (ada di jadwal)
+    private function canAccessClass($teacher, $classId): bool
+    {
+        $class = SchoolClass::find($classId);
+        if (!$class) return false;
+
+        if ($class->id_wali_kelas == $teacher->id) {
+            return true;
+        }
+
+        return ClassRoutine::where('id_teacher', $teacher->id)
+            ->where('id_class', $classId)
+            ->exists();
+    }
+
     public function schedule()
     {
         $teacher = $this->currentTeacher();
@@ -32,6 +49,7 @@ class TeacherPortalController extends Controller
         return view('teacher-portal.schedule', compact('routines', 'teacher'));
     }
 
+    // Dipakai Guru & Wali Kelas: daftar kelas yang bisa mereka akses
     public function classes()
     {
         $teacher = $this->currentTeacher();
@@ -40,7 +58,12 @@ class TeacherPortalController extends Controller
             abort(403, 'Akun Anda belum terhubung ke data guru. Hubungi Admin.');
         }
 
-        $classes = SchoolClass::where('id_wali_kelas', $teacher->id)->orderBy('name')->get();
+        $waliKelasClassIds = SchoolClass::where('id_wali_kelas', $teacher->id)->pluck('id');
+        $teachingClassIds = ClassRoutine::where('id_teacher', $teacher->id)->pluck('id_class');
+
+        $allClassIds = $waliKelasClassIds->merge($teachingClassIds)->unique();
+
+        $classes = SchoolClass::whereIn('id', $allClassIds)->orderBy('name')->get();
 
         return view('teacher-portal.classes', compact('classes', 'teacher'));
     }
@@ -50,13 +73,14 @@ class TeacherPortalController extends Controller
         $teacher = $this->currentTeacher();
         $class = SchoolClass::findOrFail($id);
 
-        if (!$teacher || $class->id_wali_kelas != $teacher->id) {
-            abort(403, 'Anda bukan wali kelas dari kelas ini.');
+        if (!$teacher || !$this->canAccessClass($teacher, $id)) {
+            abort(403, 'Anda tidak memiliki akses ke kelas ini.');
         }
 
         $students = Student::where('id_class', $id)->orderBy('name')->get();
+        $isWaliKelas = $class->id_wali_kelas == $teacher->id;
 
-        return view('teacher-portal.class-students', compact('students', 'class'));
+        return view('teacher-portal.class-students', compact('students', 'class', 'isWaliKelas'));
     }
 
     public function attendanceForm(Request $request, $id)
@@ -64,8 +88,8 @@ class TeacherPortalController extends Controller
         $teacher = $this->currentTeacher();
         $class = SchoolClass::findOrFail($id);
 
-        if (!$teacher || $class->id_wali_kelas != $teacher->id) {
-            abort(403, 'Anda bukan wali kelas dari kelas ini.');
+        if (!$teacher || !$this->canAccessClass($teacher, $id)) {
+            abort(403, 'Anda tidak memiliki akses ke kelas ini.');
         }
 
         $selectedDate = $request->date ?? now()->format('Y-m-d');
@@ -79,8 +103,8 @@ class TeacherPortalController extends Controller
         $teacher = $this->currentTeacher();
         $class = SchoolClass::findOrFail($id);
 
-        if (!$teacher || $class->id_wali_kelas != $teacher->id) {
-            abort(403, 'Anda bukan wali kelas dari kelas ini.');
+        if (!$teacher || !$this->canAccessClass($teacher, $id)) {
+            abort(403, 'Anda tidak memiliki akses ke kelas ini.');
         }
 
         $validated = $request->validate([

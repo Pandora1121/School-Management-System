@@ -6,6 +6,7 @@ use App\Models\Student;
 use App\Models\SchoolClass;
 use App\Models\Major;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
@@ -14,32 +15,39 @@ class StudentController extends Controller
         return view('students.index');
     }
 
+    public function data()
+    {
+        $students = Student::with(['schoolClass', 'major'])->orderBy('id', 'desc')->get();
 
- public function data()
-{
-    $students = Student::with(['schoolClass', 'major'])->orderBy('id', 'desc')->get();
+        $data = $students->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'nis' => $item->nis,
+                'name' => $item->name,
+                'class_name' => $item->schoolClass->name ?? '-',
+                'major_name' => $item->major->name ?? '-',
+                'gender' => $item->gender == 'L' ? 'Laki-laki' : 'Perempuan',
+                'birth_date' => $item->birth_date ? \Carbon\Carbon::parse($item->birth_date)->translatedFormat('d M Y') : '-',
+                'status' => $item->status == 1 ? 'Aktif' : 'Non-Aktif',
+            ];
+        });
 
-    $data = $students->map(function ($item) {
-        return [
-            'id' => $item->id,
-            'nis' => $item->nis,
-            'name' => $item->name,
-            'class_name' => $item->schoolClass->name ?? '-',
-            'major_name' => $item->major->name ?? '-',
-            'gender' => $item->gender == 'L' ? 'Laki-laki' : 'Perempuan',
-            'birth_date' => $item->birth_date ? \Carbon\Carbon::parse($item->birth_date)->translatedFormat('d M Y') : '-',
-            'status' => $item->status == 1 ? 'Aktif' : 'Non-Aktif',
-        ];
-    });
-
-    return response()->json(['data' => $data]);
-}
+        return response()->json(['data' => $data]);
+    }
 
     public function create()
     {
         $classes = SchoolClass::orderBy('name')->get();
         $majors = Major::orderBy('name')->get();
         return view('students.add', compact('classes', 'majors'));
+    }
+
+    private function sanitizeFileName($file): string
+    {
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $cleanName = Str::slug($originalName);
+        return now()->format('YmdHis').'-'.$cleanName.'.'.$extension;
     }
 
     public function store(Request $request)
@@ -58,7 +66,7 @@ class StudentController extends Controller
 
         $imgName = null;
         if ($request->hasFile('img_url')) {
-            $imgName = now()->format('YmdHis').'-'.$request->file('img_url')->getClientOriginalName();
+            $imgName = $this->sanitizeFileName($request->file('img_url'));
             $request->file('img_url')->move(public_path('uploads/students'), $imgName);
         }
 
@@ -79,7 +87,7 @@ class StudentController extends Controller
             'status' => 1,
         ]);
 
-        return redirect()->route('students.index')->with('success', 'Data siswa berhasil ditambahkan.');
+        return response()->json(['success' => true, 'message' => 'Data siswa berhasil ditambahkan.']);
     }
 
     public function edit($id)
@@ -108,7 +116,7 @@ class StudentController extends Controller
 
         $imgName = $student->img_url;
         if ($request->hasFile('img_url')) {
-            $imgName = now()->format('YmdHis').'-'.$request->file('img_url')->getClientOriginalName();
+            $imgName = $this->sanitizeFileName($request->file('img_url'));
             $request->file('img_url')->move(public_path('uploads/students'), $imgName);
         }
 
@@ -126,14 +134,15 @@ class StudentController extends Controller
             'phone' => $validated['phone'] ?? null,
         ]);
 
-        return redirect()->route('students.index')->with('success', 'Data siswa berhasil diperbarui.');
+        return response()->json(['success' => true, 'message' => 'Data siswa berhasil diperbarui.']);
     }
 
     public function destroy($id)
     {
-            if (auth()->user()->role != 1) {
-        abort(403, 'Anda tidak memiliki akses untuk menghapus data.');
-    }
+        if (auth()->user()->role != 1) {
+            abort(403, 'Anda tidak memiliki akses untuk menghapus data.');
+        }
+
         $student = Student::findOrFail($id);
         $student->update([
             'archived' => 1,
