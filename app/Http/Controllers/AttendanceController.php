@@ -42,7 +42,6 @@ class AttendanceController extends Controller
         return response()->json(['data' => $data]);
     }
 
-    // Tampilkan form absen untuk 1 kelas pada 1 tanggal (semua siswa di kelas itu sekaligus)
     public function create(Request $request)
     {
         $classes = SchoolClass::orderBy('name')->get();
@@ -68,7 +67,6 @@ class AttendanceController extends Controller
         ]);
 
         foreach ($validated['status'] as $studentId => $status) {
-            // Cegah duplikat: kalau sudah ada record untuk siswa+tanggal ini, update. Kalau belum, buat baru.
             $existing = Attendance::where('id_student', $studentId)
                 ->where('date', $validated['date'])
                 ->first();
@@ -93,7 +91,7 @@ class AttendanceController extends Controller
             }
         }
 
-        return redirect()->route('attendances.index')->with('success', 'Absensi berhasil disimpan.');
+        return response()->json(['success' => true, 'message' => 'Absensi berhasil disimpan.']);
     }
 
     public function destroy($id)

@@ -138,6 +138,10 @@ class TeacherPortalController extends Controller
             }
         }
 
-        return redirect()->route('teacher.classes.students', $id)->with('success', 'Absensi berhasil disimpan.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Absensi berhasil disimpan.',
+            'redirect' => route('teacher.classes.students', $id),
+        ]);
     }
 }

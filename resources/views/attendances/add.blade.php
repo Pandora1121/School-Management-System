@@ -45,15 +45,9 @@
         <div class="card-body">
             <h5 class="mb-4">Daftar Siswa — {{ $students->first()->schoolClass->name ?? '' }} ({{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('d M Y') }})</h5>
 
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    @foreach ($errors->all() as $error)
-                        <div>{{ $error }}</div>
-                    @endforeach
-                </div>
-            @endif
+            <div id="formAlert"></div>
 
-            <form method="POST" action="{{ route('attendances.store') }}">
+            <form id="attendanceForm" method="POST" action="{{ route('attendances.store') }}">
                 @csrf
                 <input type="hidden" name="id_class" value="{{ $selectedClass }}">
                 <input type="hidden" name="date" value="{{ $selectedDate }}">
@@ -86,7 +80,10 @@
                     </tbody>
                 </table>
 
-                <button type="submit" class="btn btn-primary">Simpan Absensi</button>
+                <button type="submit" id="submitBtn" class="btn btn-primary">
+                    <span id="submitText">Simpan Absensi</span>
+                    <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                </button>
                 <a href="{{ route('attendances.index') }}" class="btn btn-secondary">Batal</a>
             </form>
         </div>
@@ -96,3 +93,49 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(document).ready(function () {
+    $('#attendanceForm').on('submit', function (e) {
+        e.preventDefault();
+
+        let formData = $(this).serialize();
+        $('#submitBtn').prop('disabled', true);
+        $('#submitText').addClass('d-none');
+        $('#submitSpinner').removeClass('d-none');
+        $('#formAlert').html('');
+
+        $.ajax({
+            url: $(this).attr('action'),
+            method: 'POST',
+            data: formData,
+            success: function (res) {
+                $('#formAlert').html(`<div class="alert alert-success">${res.message}</div>`);
+                setTimeout(function () {
+                    window.location.href = "{{ route('attendances.index') }}";
+                }, 800);
+            },
+            error: function (xhr) {
+                $('#submitBtn').prop('disabled', false);
+                $('#submitText').removeClass('d-none');
+                $('#submitSpinner').addClass('d-none');
+
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    let errorHtml = '<div class="alert alert-danger"><ul class="mb-0">';
+                    $.each(errors, function (field, messages) {
+                        errorHtml += `<li>${messages[0]}</li>`;
+                    });
+                    errorHtml += '</ul></div>';
+                    $('#formAlert').html(errorHtml);
+                } else {
+                    $('#formAlert').html('<div class="alert alert-danger">Terjadi kesalahan. Coba lagi.</div>');
+                }
+            }
+        });
+    });
+});
+</script>
+@endpush

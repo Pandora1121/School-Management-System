@@ -19,15 +19,9 @@
         <div class="card-body">
             <h5 class="mb-4">{{ $class->name }} — {{ $subject->name }} ({{ $examType }})</h5>
 
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    @foreach ($errors->all() as $error)
-                        <div>{{ $error }}</div>
-                    @endforeach
-                </div>
-            @endif
+            <div id="formAlert"></div>
 
-            <form method="POST" action="{{ route('exams.store') }}">
+            <form id="examForm" method="POST" action="{{ route('exams.store') }}">
                 @csrf
                 <input type="hidden" name="id_class" value="{{ $class->id }}">
                 <input type="hidden" name="id_subject" value="{{ $subject->id }}">
@@ -56,7 +50,10 @@
                     </tbody>
                 </table>
 
-                <button type="submit" class="btn btn-primary">Simpan Nilai</button>
+                <button type="submit" id="submitBtn" class="btn btn-primary">
+                    <span id="submitText">Simpan Nilai</span>
+                    <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                </button>
                 <a href="{{ route('exams.index') }}" class="btn btn-secondary">Batal</a>
             </form>
         </div>
@@ -64,3 +61,49 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(document).ready(function () {
+    $('#examForm').on('submit', function (e) {
+        e.preventDefault();
+
+        let formData = $(this).serialize();
+        $('#submitBtn').prop('disabled', true);
+        $('#submitText').addClass('d-none');
+        $('#submitSpinner').removeClass('d-none');
+        $('#formAlert').html('');
+
+        $.ajax({
+            url: $(this).attr('action'),
+            method: 'POST',
+            data: formData,
+            success: function (res) {
+                $('#formAlert').html(`<div class="alert alert-success">${res.message}</div>`);
+                setTimeout(function () {
+                    window.location.href = "{{ route('exams.index') }}";
+                }, 800);
+            },
+            error: function (xhr) {
+                $('#submitBtn').prop('disabled', false);
+                $('#submitText').removeClass('d-none');
+                $('#submitSpinner').addClass('d-none');
+
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    let errorHtml = '<div class="alert alert-danger"><ul class="mb-0">';
+                    $.each(errors, function (field, messages) {
+                        errorHtml += `<li>${messages[0]}</li>`;
+                    });
+                    errorHtml += '</ul></div>';
+                    $('#formAlert').html(errorHtml);
+                } else {
+                    $('#formAlert').html('<div class="alert alert-danger">Terjadi kesalahan. Coba lagi.</div>');
+                }
+            }
+        });
+    });
+});
+</script>
+@endpush

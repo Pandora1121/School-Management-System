@@ -16,7 +16,6 @@ class ExamController extends Controller
         return auth()->user()->teacher;
     }
 
-    // Kelas+mapel yang boleh diisi nilai oleh guru ini (dari jadwal mengajarnya)
     private function teachingAssignments($teacher)
     {
         return ClassRoutine::with(['schoolClass', 'subject'])
@@ -66,7 +65,6 @@ class ExamController extends Controller
             'exam_type' => ['required', 'in:Tugas,UTS,UAS,Kuis'],
         ]);
 
-        // Pastikan guru ini memang mengajar kombinasi kelas+mapel ini
         $isValidAssignment = ClassRoutine::where('id_teacher', $teacher->id)
             ->where('id_class', $validated['id_class'])
             ->where('id_subject', $validated['id_subject'])
@@ -124,7 +122,7 @@ class ExamController extends Controller
             ]);
         }
 
-        return redirect()->route('exams.index')->with('success', 'Nilai berhasil disimpan.');
+        return response()->json(['success' => true, 'message' => 'Nilai berhasil disimpan.']);
     }
 
     public function destroy($id)
