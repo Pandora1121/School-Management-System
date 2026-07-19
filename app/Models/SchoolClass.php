@@ -11,9 +11,9 @@ class SchoolClass extends Model
     protected $table = 'tbl_classes';
     public $timestamps = false;
 
-    protected $fillable = [
+protected $fillable = [
         'creation_time', 'update_time', 'create_id', 'update_id', 'archived',
-        'id_user', 'code', 'name', 'id_major', 'description',
+        'id_user', 'code', 'name', 'id_major', 'id_wali_kelas', 'description',
     ];
 
     public function major()

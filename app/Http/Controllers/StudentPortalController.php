@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassRoutine;
 use App\Models\Attendance;
+use App\Models\Exam;
 use Illuminate\Http\Request;
 
 class StudentPortalController extends Controller
@@ -50,5 +51,25 @@ class StudentPortalController extends Controller
         ];
 
         return view('student-portal.attendance', compact('attendances', 'student', 'summary'));
+    }
+
+    public function scores()
+    {
+        $student = $this->currentStudent();
+
+        if (!$student) {
+            abort(403, 'Akun Anda belum terhubung ke data siswa. Hubungi Admin.');
+        }
+
+        $exams = Exam::with('subject')
+            ->where('id_student', $student->id)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $grouped = $exams->groupBy(function ($item) {
+            return $item->subject->name ?? 'Lainnya';
+        });
+
+        return view('student-portal.scores', compact('grouped', 'student'));
     }
 }
