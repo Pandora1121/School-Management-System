@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Models\PasswordResetRequest;
 
 class AuthController extends Controller
 {
@@ -83,5 +84,37 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/login');
+    }
+    public function showForgotPassword()
+    {
+        return view('auth.forgot-password');
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'username' => ['required', 'string'],
+        ]);
+
+        $user = \App\Models\User::where('username', $validated['username'])
+            ->orWhere('email', $validated['username'])
+            ->first();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'errors' => ['username' => ['Username/email tidak ditemukan.']]], 422);
+        }
+
+        $existing = PasswordResetRequest::where('id_user', $user->id)->where('status', 0)->first();
+
+        if (!$existing) {
+            PasswordResetRequest::create([
+                'creation_time' => now(),
+                'archived' => 0,
+                'id_user' => $user->id,
+                'status' => 0,
+            ]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Permintaan reset password berhasil dikirim. Silakan hubungi Admin sekolah untuk password baru Anda.']);
     }
 }

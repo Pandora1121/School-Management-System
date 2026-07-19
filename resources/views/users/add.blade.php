@@ -41,6 +41,7 @@
                         <option value="3">Guru</option>
                         <option value="4">Siswa</option>
                         <option value="5">Wali Kelas</option>
+                        <option value="6">Orang Tua</option>
                     </select>
                 </div>
 
@@ -64,6 +65,16 @@
                         @endforeach
                     </select>
                     <small class="text-muted">Hanya menampilkan guru yang belum punya akun.</small>
+                </div>
+
+                <div class="mb-3 d-none" id="parentLinkField">
+                    <label class="form-label">Hubungkan ke Data Anak (bisa pilih lebih dari 1)</label>
+                    <select name="id_children[]" class="form-select" multiple size="6">
+                        @foreach ($allStudents as $student)
+                            <option value="{{ $student->id }}">{{ $student->nis }} - {{ $student->name }}</option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted">Tahan Ctrl (Windows) / Cmd (Mac) untuk memilih lebih dari satu anak.</small>
                 </div>
 
                 <div class="mb-3">
@@ -93,11 +104,14 @@ $(document).ready(function () {
         let role = $('#roleSelect').val();
         $('#studentLinkField').addClass('d-none');
         $('#teacherLinkField').addClass('d-none');
+        $('#parentLinkField').addClass('d-none');
 
         if (role == '4') {
             $('#studentLinkField').removeClass('d-none');
         } else if (role == '3' || role == '5') {
             $('#teacherLinkField').removeClass('d-none');
+        } else if (role == '6') {
+            $('#parentLinkField').removeClass('d-none');
         }
     }
 

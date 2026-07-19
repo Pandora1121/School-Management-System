@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Models\ParentStudent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -31,6 +32,7 @@ class UserController extends Controller
                     3 => 'Guru',
                     4 => 'Siswa',
                     5 => 'Wali Kelas',
+                    6 => 'Orang Tua',
                     default => '-',
                 },
                 'status' => $item->status == 1 ? 'Aktif' : 'Non-Aktif',
@@ -44,7 +46,8 @@ class UserController extends Controller
     {
         $students = Student::whereNull('id_account')->orderBy('name')->get();
         $teachers = Teacher::whereNull('id_account')->orderBy('name')->get();
-        return view('users.add', compact('students', 'teachers'));
+        $allStudents = Student::orderBy('name')->get();
+        return view('users.add', compact('students', 'teachers', 'allStudents'));
     }
 
     public function store(Request $request)
@@ -54,9 +57,11 @@ class UserController extends Controller
             'username' => ['required', 'string', 'max:255', 'unique:tbl_users,username'],
             'email' => ['required', 'email', 'max:255', 'unique:tbl_users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'in:1,2,3,4,5'],
+            'role' => ['required', 'in:1,2,3,4,5,6'],
             'id_student' => ['nullable', 'exists:tbl_students,id'],
             'id_teacher' => ['nullable', 'exists:tbl_teachers,id'],
+            'id_children' => ['nullable', 'array'],
+            'id_children.*' => ['exists:tbl_students,id'],
         ]);
 
         $user = User::create([
@@ -79,6 +84,18 @@ class UserController extends Controller
             Teacher::where('id', $validated['id_teacher'])->update(['id_account' => $user->id]);
         }
 
+        if ($validated['role'] == 6 && !empty($validated['id_children'])) {
+            foreach ($validated['id_children'] as $studentId) {
+                ParentStudent::create([
+                    'creation_time' => now(),
+                    'create_id' => auth()->id(),
+                    'archived' => 0,
+                    'id_user' => $user->id,
+                    'id_student' => $studentId,
+                ]);
+            }
+        }
+
         return response()->json(['success' => true, 'message' => 'User berhasil ditambahkan.']);
     }
 
@@ -96,7 +113,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:tbl_users,username,'.$id],
             'email' => ['required', 'email', 'max:255', 'unique:tbl_users,email,'.$id],
-            'role' => ['required', 'in:1,2,3,4,5'],
+            'role' => ['required', 'in:1,2,3,4,5,6'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 

@@ -15,6 +15,8 @@ use App\Http\Controllers\TeacherPortalController;
 use App\Http\Controllers\StudentPortalController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PasswordResetRequestController;
+use App\Http\Controllers\ParentPortalController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -25,6 +27,8 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
 });
 
 Route::middleware('auth')->group(function () {
@@ -154,4 +158,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+});
+
+Route::middleware(['auth', 'role:1'])->group(function () {
+    Route::get('/password-resets', [PasswordResetRequestController::class, 'index'])->name('password-resets.index');
+    Route::get('/password-resets/data', [PasswordResetRequestController::class, 'data'])->name('password-resets.data');
+    Route::post('/password-resets/{id}/process', [PasswordResetRequestController::class, 'process'])->name('password-resets.process');
+});
+
+Route::middleware(['auth', 'role:6'])->group(function () {
+    Route::get('/my-children', [ParentPortalController::class, 'index'])->name('parent.index');
+    Route::get('/my-children/{studentId}/schedule', [ParentPortalController::class, 'schedule'])->name('parent.schedule');
+    Route::get('/my-children/{studentId}/attendance', [ParentPortalController::class, 'attendance'])->name('parent.attendance');
+    Route::get('/my-children/{studentId}/scores', [ParentPortalController::class, 'scores'])->name('parent.scores');
 });

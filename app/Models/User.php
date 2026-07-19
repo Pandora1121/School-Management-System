@@ -43,4 +43,8 @@ public function student()
     return $this->hasOne(Student::class, 'id_account');
 }
     
+public function children()
+{
+    return $this->hasMany(\App\Models\ParentStudent::class, 'id_user');
+}
 }
