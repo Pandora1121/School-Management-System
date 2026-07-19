@@ -117,4 +117,5 @@ class AuthController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Permintaan reset password berhasil dikirim. Silakan hubungi Admin sekolah untuk password baru Anda.']);
     }
+    
 }
