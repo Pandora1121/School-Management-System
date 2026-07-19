@@ -81,6 +81,31 @@ class DashboardController extends Controller
         $totalMajors = Major::count();
         $totalUsers = $user->role == 1 ? User::where('archived', 0)->count() : null;
 
-        return view('dashboard', compact('totalStudents', 'totalClasses', 'totalMajors', 'totalUsers'));
+        // Data untuk grafik: siswa per jurusan
+        $studentsPerMajor = Major::withCount('students')->orderBy('name')->get();
+
+        // Data untuk grafik: distribusi gender siswa
+        $genderCounts = [
+            'L' => Student::where('gender', 'L')->count(),
+            'P' => Student::where('gender', 'P')->count(),
+        ];
+
+        // Data untuk grafik: tren kehadiran 7 hari terakhir
+        $attendanceTrend = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $count = Attendance::where('date', $date->format('Y-m-d'))
+                ->where('status', 'Hadir')
+                ->count();
+            $attendanceTrend[] = [
+                'date' => $date->translatedFormat('d M'),
+                'count' => $count,
+            ];
+        }
+
+        return view('dashboard', compact(
+            'totalStudents', 'totalClasses', 'totalMajors', 'totalUsers',
+            'studentsPerMajor', 'genderCounts', 'attendanceTrend'
+        ));
     }
 }

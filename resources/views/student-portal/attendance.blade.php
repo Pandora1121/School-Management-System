@@ -53,7 +53,7 @@
             @if ($attendances->isEmpty())
                 <p class="text-muted mb-0">Belum ada riwayat presensi.</p>
             @else
-                <table class="table table-bordered table-hover">
+            <table id="attendanceHistoryTable" class="table table-bordered table-hover w-100">
                     <thead>
                         <tr>
                             <th style="width: 60px;">No</th>
@@ -88,4 +88,17 @@
         </div>
     </div>
 </div>
+@push('scripts')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>
+$(document).ready(function () {
+    if ($('#attendanceHistoryTable').length) {
+        $('#attendanceHistoryTable').DataTable();
+    }
+});
+</script>
+@endpush
 @endsection

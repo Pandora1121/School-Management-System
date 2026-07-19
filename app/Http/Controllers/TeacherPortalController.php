@@ -80,7 +80,21 @@ class TeacherPortalController extends Controller
         $students = Student::where('id_class', $id)->orderBy('name')->get();
         $isWaliKelas = $class->id_wali_kelas == $teacher->id;
 
-        return view('teacher-portal.class-students', compact('students', 'class', 'isWaliKelas'));
+        // Rekap per siswa: kehadiran & rata-rata nilai
+        $recap = $students->mapWithKeys(function ($student) {
+            $attendances = \App\Models\Attendance::where('id_student', $student->id)->get();
+            $exams = \App\Models\Exam::where('id_student', $student->id)->get();
+
+            return [$student->id => [
+                'hadir' => $attendances->where('status', 'Hadir')->count(),
+                'sakit' => $attendances->where('status', 'Sakit')->count(),
+                'izin' => $attendances->where('status', 'Izin')->count(),
+                'alpa' => $attendances->where('status', 'Alpa')->count(),
+                'avg_score' => $exams->count() > 0 ? round($exams->avg('score'), 2) : null,
+            ]];
+        });
+
+        return view('teacher-portal.class-students', compact('students', 'class', 'isWaliKelas', 'recap'));
     }
 
     public function attendanceForm(Request $request, $id)
