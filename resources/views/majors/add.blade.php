@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Jurusan')
+@section('title', 'Tambah Jurusan')
 
 @section('content')
 <div class="container py-4">
@@ -8,43 +8,33 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="{{ route('majors.index') }}">Jurusan</a></li>
-            <li class="breadcrumb-item active">Edit</li>
+            <li class="breadcrumb-item active">Tambah</li>
         </ol>
     </nav>
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <h5 class="mb-4">Edit Jurusan</h5>
+            <h5 class="mb-4">Tambah Jurusan</h5>
 
             <div id="formAlert"></div>
 
-            <form id="majorEditForm" method="POST" action="{{ route('majors.update', $major->id) }}" enctype="multipart/form-data">
+            <form id="majorForm" method="POST" action="{{ route('majors.store') }}" enctype="multipart/form-data">
                 @csrf
-                @method('PUT')
                 <div class="mb-3">
                     <label class="form-label">Nama Jurusan <span class="text-danger">*</span></label>
-                    <input type="text" name="name" class="form-control" value="{{ $major->name }}" autofocus required>
+                    <input type="text" name="name" id="name" class="form-control" placeholder="Contoh: Rekayasa Perangkat Lunak" autofocus required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Deskripsi</label>
-                    <textarea name="description" class="form-control" rows="3">{{ $major->description }}</textarea>
+                    <textarea name="description" id="description" class="form-control" placeholder="Deskripsi singkat jurusan" rows="3"></textarea>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Gambar</label>
-                    @if ($major->img_url)
-                        <div class="mb-2">
-                            <img id="imgPreview" src="{{ asset('uploads/majors/'.$major->img_url) }}" width="120" height="120" style="object-fit: cover;" class="rounded border">
-                        </div>
-                    @else
-                        <div class="mb-2">
-                            <img id="imgPreview" src="" width="120" height="120" style="object-fit: cover; display:none;" class="rounded border">
-                        </div>
-                    @endif
                     <input type="file" name="img_url" class="form-control" accept="image/*">
-                    <small class="text-muted">Kosongkan jika tidak ingin mengubah gambar.</small>
+                    <small class="text-muted">Format JPG/PNG, maksimal 2MB.</small>
                 </div>
                 <button type="submit" id="submitBtn" class="btn btn-primary">
-                    <span id="submitText">Update</span>
+                    <span id="submitText">Simpan</span>
                     <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
                 </button>
                 <a href="{{ route('majors.index') }}" class="btn btn-secondary">Batal</a>
@@ -58,7 +48,7 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
 $(document).ready(function () {
-    $('#majorEditForm').on('submit', function (e) {
+    $('#majorForm').on('submit', function (e) {
         e.preventDefault();
 
         let formData = new FormData(this);

@@ -21,6 +21,13 @@
         .main-content {
             flex: 1;
         }
+        h1, .h1 { font-size: 2rem; }
+        h2, .h2 { font-size: 1.75rem; }
+        h3, .h3 { font-size: 1.5rem; }
+        h4, .h4 { font-size: 1.25rem; }
+        h5, .h5 { font-size: 1.1rem; }
+        .text-small { font-size: 0.875rem; }
+        .text-smaller { font-size: 0.75rem; }
     </style>
 </head>
 <body class="bg-light">
@@ -86,6 +93,13 @@
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('student.scores') }}" class="nav-link {{ request()->routeIs('student.scores') ? 'active' : '' }}">Nilai Saya</a>
+                    </li>
+                @endif
+
+                {{-- Orang Tua --}}
+                @if (auth()->user()->role == 6)
+                    <li class="nav-item">
+                        <a href="{{ route('parent.index') }}" class="nav-link {{ request()->routeIs('parent.*') ? 'active' : '' }}">Anak Saya</a>
                     </li>
                 @endif
 
