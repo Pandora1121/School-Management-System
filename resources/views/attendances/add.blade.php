@@ -52,6 +52,7 @@
                 <input type="hidden" name="id_class" value="{{ $selectedClass }}">
                 <input type="hidden" name="date" value="{{ $selectedDate }}">
 
+                <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -79,6 +80,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>
 
                 <button type="submit" id="submitBtn" class="btn btn-primary">
                     <span id="submitText">Simpan Absensi</span>

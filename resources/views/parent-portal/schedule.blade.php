@@ -19,6 +19,7 @@
             @if ($routines->isEmpty())
                 <p class="text-muted mb-0">Belum ada jadwal pelajaran.</p>
             @else
+                <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead>
                         <tr>
@@ -41,6 +42,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>
             @endif
         </div>
     </div>

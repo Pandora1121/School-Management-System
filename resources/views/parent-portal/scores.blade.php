@@ -21,6 +21,7 @@
         <div class="card shadow-sm mb-3">
             <div class="card-body">
                 <h5 class="mb-3">{{ $subjectName }}</h5>
+                <div class="table-responsive">
                 <table class="table table-bordered mb-0">
                     <thead><tr><th style="width: 60px;">No</th><th>Jenis Ujian</th><th class="text-end">Nilai</th></tr></thead>
                     <tbody>
@@ -33,6 +34,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
         @endforeach

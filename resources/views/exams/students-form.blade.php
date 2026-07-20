@@ -27,6 +27,7 @@
                 <input type="hidden" name="id_subject" value="{{ $subject->id }}">
                 <input type="hidden" name="exam_type" value="{{ $examType }}">
 
+                <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -49,6 +50,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>
 
                 <button type="submit" id="submitBtn" class="btn btn-primary">
                     <span id="submitText">Simpan Nilai</span>

@@ -42,6 +42,7 @@
             @if ($attendances->isEmpty())
                 <p class="text-muted mb-0">Belum ada riwayat presensi.</p>
             @else
+               <div class="table-responsive">
                <table id="attendanceHistoryTable" class="table table-bordered table-hover w-100">
                     <thead>
                         <tr><th style="width: 60px;">No</th><th>Tanggal</th><th>Status</th><th>Catatan</th></tr>
@@ -65,6 +66,7 @@
                         @endforeach
                     </tbody>
                 </table>
+               </div>
             @endif
         </div>
     </div>
